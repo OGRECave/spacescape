@@ -457,11 +457,11 @@ namespace Ogre
     void SpacescapeLayerBillboards::createBillboardSet()
     {
         // get the default scene manager
-        if(!Ogre::Root::getSingleton().getSceneManagerIterator().hasMoreElements()) {
+        if(Ogre::Root::getSingleton().getSceneManagers().empty()) {
             Ogre::LogManager::getSingleton().getDefaultLog()->stream() <<
             "No scene manager found in SpacescapePlugin::addLayer().  You can't add a layer before creating a scene manager.";
         }
-        SceneManager* sceneMgr = Root::getSingleton().getSceneManagerIterator().peekNextValue();
+        SceneManager* sceneMgr = Root::getSingleton().getSceneManagers().begin()->second;
         
         // create the billboardset if it doesn't exist
         String name = "SpacescapeLayerBillboardset" + StringConverter::toString(mUniqueID);

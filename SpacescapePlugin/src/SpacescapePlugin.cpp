@@ -73,11 +73,11 @@ namespace Ogre
         // create the scene node if it doesn't already exist
         if(!mSceneNode) {
             // get the default scene manager
-            if(!Ogre::Root::getSingleton().getSceneManagerIterator().hasMoreElements()) {
+            if(Ogre::Root::getSingleton().getSceneManagers().empty()) {
                 Ogre::LogManager::getSingleton().getDefaultLog()->stream() << 
                     "No scene manager found in SpacescapePlugin::addLayer().  You can't add a layer before creating a scene manager.";
             }
-            SceneManager* sceneMgr = Root::getSingleton().getSceneManagerIterator().peekNextValue();
+            SceneManager* sceneMgr = Root::getSingleton().getSceneManagers().begin()->second;
             mSceneNode = sceneMgr->getRootSceneNode()->createChildSceneNode("SpacescapeNode");
         }
 
@@ -481,12 +481,12 @@ namespace Ogre
     bool SpacescapePlugin::clear()
     {
         // check if the scene manager still exists
-        if(!Ogre::Root::getSingleton().getSceneManagerIterator().hasMoreElements()) {
+        if(Ogre::Root::getSingleton().getSceneManagers().empty()) {
             Ogre::LogManager::getSingleton().getDefaultLog()->stream() << 
                 "SpacescapePlugin::clear() called with no scenemanagers.";
         }
         else {
-            SceneManager* sceneMgr = Root::getSingleton().getSceneManagerIterator().peekNextValue();
+            SceneManager* sceneMgr = Root::getSingleton().getSceneManagers().begin()->second;
 
             // it is possible that this function is called after the plugin has been shutdown etc.
             // so the scene node pointer may be invalid
@@ -805,11 +805,14 @@ namespace Ogre
         
         // get the rtt camera
         Camera* rttCam;
+        SceneNode* camNode;
         if(!mgr->hasCamera("RTTCam")) {
             rttCam = mgr->createCamera("RttCam");
+            camNode = mgr->createSceneNode();
+            camNode->attachObject(rttCam);
 
             // initialize the camera
-            rttCam->lookAt(Vector3::UNIT_Z);
+            camNode->lookAt(Vector3::UNIT_Z, Node::TS_PARENT);
             rttCam->setAspectRatio(1.0);
             rttCam->setFOVy(Radian(Degree(90.0))); // 90 degree fov
             rttCam->setNearClipDistance(0.1f);
@@ -817,10 +820,11 @@ namespace Ogre
         }
         else {
             rttCam = mgr->getCamera("RttCam");
+            camNode = rttCam->getParentSceneNode();
         }
 
          // attach rtt cam to scene
-        mSceneNode->attachObject(rttCam);
+        mSceneNode->addChild(camNode);
  
         int numMips = (numMipMaps == -1) ? SpacescapePlugin::_log2((uint)texture->getWidth()) : numMipMaps;
         
@@ -883,7 +887,7 @@ namespace Ogre
 
             Quaternion q;
             q.FromAxes(right,up,forward);
-			rttCam->setOrientation(q * alterOrientation);
+			camNode->setOrientation(q * alterOrientation);
 
             for(int j = 0; j <= numMips; ++j) {
                 // get render target for mipmap
@@ -907,7 +911,7 @@ namespace Ogre
         }
         texture->load();
 
-        mSceneNode->detachObject(rttCam);
+        mSceneNode->removeChild(camNode);
         mgr->destroyCamera(rttCam);
 
         return true;
@@ -964,7 +968,7 @@ namespace Ogre
     void SpacescapePlugin::setDebugBoxVisible(bool visible)
     {
 		if (!mSceneNode) {
-			SceneManager* sceneMgr = Root::getSingleton().getSceneManagerIterator().peekNextValue();
+			SceneManager* sceneMgr = Root::getSingleton().getSceneManagers().begin()->second;
 			mSceneNode = sceneMgr->getRootSceneNode()->createChildSceneNode("SpacescapeNode");
 		}
 
