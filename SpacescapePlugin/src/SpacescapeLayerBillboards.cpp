@@ -636,6 +636,7 @@ namespace Ogre
             mMaterial->getTechnique(0)->getPass(0)->setLightingEnabled(false);
             mMaterial->getTechnique(0)->getPass(0)->setDepthWriteEnabled(false);
             mMaterial->getTechnique(0)->getPass(0)->setDepthCheckEnabled(false);
+            mMaterial->getTechnique(0)->getPass(0)->setVertexColourTracking(TVC_AMBIENT);
 
             // create a single texture unit state for our billboard texture
             mMaterial->getTechnique(0)->getPass(0)->createTextureUnitState();

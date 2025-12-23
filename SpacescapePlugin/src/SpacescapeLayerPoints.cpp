@@ -299,6 +299,7 @@ namespace Ogre
             mMaterial->getTechnique(0)->getPass(0)->setPointSpritesEnabled(true);
             mMaterial->getTechnique(0)->getPass(0)->setDepthCheckEnabled(false);
             mMaterial->getTechnique(0)->getPass(0)->setDepthWriteEnabled(false);
+            mMaterial->getTechnique(0)->getPass(0)->setVertexColourTracking(TVC_AMBIENT);
             
             if(mHDREnabled) {
                 GpuProgramParametersSharedPtr params;

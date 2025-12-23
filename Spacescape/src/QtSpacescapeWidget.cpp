@@ -32,6 +32,10 @@ THE SOFTWARE.
 
 #include <Ogre.h>
 
+#ifdef OGRE_BUILD_COMPONENT_RTSHADERSYSTEM
+    #include <OgreRTShaderSystem.h>
+#endif
+
 #ifdef Q_WS_MAC
 #include "macUtils.h"
 #endif
@@ -422,7 +426,11 @@ void QtSpacescapeWidget::setupResources(void) {
 */
 void QtSpacescapeWidget::setupScene(void) {
 	mSceneMgr = Ogre::Root::getSingleton().createSceneManager();
-	
+
+#ifdef OGRE_BUILD_COMPONENT_RTSHADERSYSTEM
+    RTShader::ShaderGenerator::getSingleton().addSceneManager(mSceneMgr);
+#endif
+
 	// Create the camera
 	mCamera = mSceneMgr->createCamera("PlayerCam");
     mCamera->setNearClipDistance(0.1f);
